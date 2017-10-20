@@ -85,16 +85,16 @@ void PS2::tickFalling() {
         break;
         
       case 0x47:
-        digitalWrite(dataPin, ((data47[by] & (1 << bi)) >> bi));
+        digitalWrite(dataPin, ((pgm_read_byte(&data47[(uint8_t)by])& (1 << bi)) >> bi));
         break;
         
       case 0x4C:
         switch (data4C) {
           case 0:
-            digitalWrite(dataPin, ((data4C_a[by] & (1 << bi)) >> bi));
+            digitalWrite(dataPin, ((pgm_read_byte(&data4C_a[(uint8_t)by]) & (1 << bi)) >> bi));
             break;
           case 1:
-            digitalWrite(dataPin, ((data4C_b[by] & (1 << bi)) >> bi));
+            digitalWrite(dataPin, ((pgm_read_byte(&data4C_a[(uint8_t)by]) & (1 << bi)) >> bi));
             break;
         }
         data4C = !data4C;
@@ -184,14 +184,20 @@ void PS2::switchMode() {
 
 void PS2::setButton(ButtonEnum button, bool b) {
   // digital buttons are reported in the 4th and 5th byte of the report
+  // when button is clicked signal is low
+  uint8_t by = (uint8_t)(pgm_read_word(&PS2_BUTTONS[(uint8_t)button]) >> 8);
+  uint8_t bi = (uint8_t)(pgm_read_word(&PS2_BUTTONS[(uint8_t)button]) & 0x00FF);
 
-  digitalButtonState &= pgm_read_dword(&PS3_BUTTONS[(uint8_t)b]);
+  b ?
+  reportBuffer[3 + by] &= ~bi:
+  reportBuffer[3 + by] |= bi;
+}
 
-  reportBuffer[3] = ~((uint8_t)digitalButtonState);
-  reportBuffer[4] = ~((uint8_t)(digitalButtonState >> 8));
+void PS2::setAnalogueHat(AnalogHatEnum hat, uint8_t b) {
+  reportBuffer[pgm_read_byte(&PS2_ANALOG_HATS[(uint8_t)hat])] = b;
 }
 
 void PS2::setAnalogueButton(ButtonEnum button, uint8_t b) {
-  
+  reportBuffer[pgm_read_byte(&PS2_ANALOG_BUTTONS[(uint8_t)button])] = b;
 }
 

@@ -24,6 +24,7 @@ class PS2
     void handleAttention();
     
     void setButton(ButtonEnum button, bool b);
+    void setAnalogueHat(AnalogHatEnum hat, uint8_t b);
     void setAnalogueButton(ButtonEnum button, uint8_t b);
 
     byte getRumbleLeft();
