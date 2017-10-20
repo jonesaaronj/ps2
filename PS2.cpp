@@ -2,10 +2,10 @@
 #include "PS2.h"
 
 PS2::PS2(uint8_t clockPin = 0,
-      uint8_t attenPin = 0,
-      uint8_t commandPin = 0,
-      uint8_t dataPin = 0,
-      uint8_t ackPin = 0) {
+  uint8_t attenPin = 0,
+  uint8_t commandPin = 0,
+  uint8_t dataPin = 0,
+  uint8_t ackPin = 0) {
 
   pinMode(clockPin, INPUT_PULLUP);
   pinMode(attenPin, INPUT_PULLUP);

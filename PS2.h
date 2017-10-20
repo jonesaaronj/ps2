@@ -15,10 +15,10 @@ class PS2
 {
   public:
     PS2(uint8_t clockPin = 0,
-      uint8_t attenPin = 0,
-    	uint8_t commandPin = 0,
-    	uint8_t dataPin = 0,
-    	uint8_t ackPin = 0);
+    uint8_t attenPin = 0,
+    uint8_t commandPin = 0,
+    uint8_t dataPin = 0,
+    uint8_t ackPin = 0);
 
     void handleTick();
     void handleAttention();
@@ -58,9 +58,9 @@ class PS2
 
     uint8_t data46, data4C;
 
-  	void tickFalling();
-  	void tickRising();
-  	void attentionFalling();
+    void tickFalling();
+    void tickRising();
+    void attentionFalling();
     void attentionRising();
     void switchMode();
 };
