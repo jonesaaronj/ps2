@@ -1,42 +1,51 @@
-const byte clockPin = 1;
-const byte attentionPin = 4;
-const byte commandPin = 2;
-const byte dataPin = 3;
-const byte ackPin = 5;
+#include "PS2.h"
 
-byte state = 0;
-byte tick = 0;
+#include <PS3BT.h>
+#include <usbhub.h>
+#include <SPI.h>
 
-byte attention = 0;
+#define CLOCK_PIN 1
+#define ATTEN_PIN 2
+#define COMMAND_PIN 3
+#define DATA_PIN 4
+#define ACK_PIN 5
+
+USB Usb;
+BTD Btd(&Usb);
+PS3BT PS3(&Btd);
+
+PS2 PS2(CLOCK_PIN, ATTEN_PIN, COMMAND_PIN, DATA_PIN, ACK_PIN);
 
 void setup() {
-  // put your setup code here, to run once:
+  Serial.begin(115200);
+#if !defined(__MIPSEL__)
+  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+#endif
+  if (Usb.Init() == -1) {
+    Serial.print(F("\r\nOSC did not start"));
+    while (1); //halt
+  }
+  Serial.print(F("\r\nPS3 Bluetooth Library Started"));
 
-  // set the clock interupt
-  pinMode(clockPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(clockPin), handleClock, CHANGE);
 
-  // set command and attention pins as input
-  pinMode(commandPin, INPUT);
-  pinMode(attentionPin, INPUT);
+  // interrupts can only be attached to global functions
+  attachInterrupt(CLOCK_PIN, handleTick, CHANGE);
+  attachInterrupt(ATTEN_PIN, handleAttention, CHANGE);
 
-  // set data and ack pins as output
-  pinMode(dataPin, OUTPUT);
-  pinMode(ackPin, OUTPUT);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 }
 
-void handleClock() {
-  
-  // if attention pin is low do our thing otherwise reset tick to 0
-  attention = digitalRead(attentionPin);
-  if ( attention = HIGH ){
-    tick = 0;
-  } else {
-    
-  }
-  
+void handleTick() {
+  PS2.handleTick();
 }
+
+void handleAttention() {
+  PS2.handleAttention();
+}
+
+
+
+
