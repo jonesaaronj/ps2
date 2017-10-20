@@ -39,10 +39,10 @@ void PS2::tickFalling() {
   if (by < 3) {
     // we are in the header, write header bytes
     switch (mode) {
-      case REPORT:
+      case REPORT_MODE:
         digitalWrite(dataPin, ((reportDataHeader[by] & (1 << bi)) >> bi));
         break;
-      case CONFIG:
+      case CONFIG_MODE:
         digitalWrite(dataPin, ((configDataHeader[by] & (1 << bi)) >> bi));
         break;
     }
@@ -173,11 +173,25 @@ void PS2::switchMode() {
   mode = !mode;
   // set maxTicks for the mode
   switch (mode) {
-    case REPORT:
+    case REPORT_MODE:
       maxTicks = PS2_REPORT_SIZE;
       break;
-    case CONFIG:
+    case CONFIG_MODE:
       maxTicks = PS2_CONFIG_SIZE;
       break;
   }
 }
+
+void PS2::setButton(ButtonEnum button, bool b) {
+  // digital buttons are reported in the 4th and 5th byte of the report
+
+  digitalButtonState &= pgm_read_dword(&PS3_BUTTONS[(uint8_t)b]);
+
+  reportBuffer[3] = ~((uint8_t)digitalButtonState);
+  reportBuffer[4] = ~((uint8_t)(digitalButtonState >> 8));
+}
+
+void PS2::setAnalogueButton(ButtonEnum button, uint8_t b) {
+  
+}
+

@@ -6,8 +6,8 @@
 
 #define EP_MAXPKTSIZE 29
 
-#define REPORT 0
-#define CONFIG 1
+#define REPORT_MODE 0
+#define CONFIG_MODE 1
 #define PS2_REPORT_SIZE 21
 #define PS2_CONFIG_SIZE 9
 
@@ -23,8 +23,8 @@ class PS2
     void handleTick();
     void handleAttention();
     
-    void setButton(ButtonEnum button, byte b);
-    void setAnalogueButton(ButtonEnum button, byte b);
+    void setButton(ButtonEnum button, bool b);
+    void setAnalogueButton(ButtonEnum button, uint8_t b);
 
     byte getRumbleLeft();
     byte getRumbleRight();
@@ -43,10 +43,12 @@ class PS2
     uint8_t bi = 0;
     uint8_t tick = 0;
     uint8_t maxTicks = PS2_CONFIG_SIZE;
-    uint8_t mode = REPORT;
+    uint8_t mode = REPORT_MODE;
+
+    uint16_t digitalButtonState = 0xFFFF;
     
     uint8_t commandBuffer[EP_MAXPKTSIZE];
-    uint8_t reportBuffer[PS2_REPORT_SIZE];
+    uint8_t reportBuffer[PS2_REPORT_SIZE] = { 0x01 };
 
     uint8_t data41[PS2_CONFIG_SIZE];
     uint8_t data44[PS2_CONFIG_SIZE];
