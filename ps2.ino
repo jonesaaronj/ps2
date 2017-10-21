@@ -81,8 +81,7 @@ void loop() {
     PS2.setAnalogueButton(R2, PS3.getAnalogButton(R2));
 
     if (PS3.getButtonClick(PS)) {
-      Serial.print(F("\r\nPS"));
-      PS3.disconnect();
+      PS2.toggleContMode();
     }
   }
 }

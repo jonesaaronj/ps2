@@ -58,18 +58,6 @@ const uint8_t PS2_ANALOG_HATS[] PROGMEM = {
         6, // RightHatY
 };
 
-// if we are in REPORT mode our header data is always the same
-// 79 indicates we are analogue(F) with (9) words following the header
-const uint8_t reportDataHeader[PS2_HEADER_SIZE] PROGMEM = {
-    0xFF, 0xF9, 0x5A
-};
-
-// if we are in CONFIG mode our header data is always the same
-// F3 indicates we are analogue(F) with (3) words following the header
-const uint8_t configDataHeader[PS2_HEADER_SIZE] PROGMEM = {
-    0xFF, 0xF3, 0x5A
-};
-
 // these arrays are oversized
 // to make the const uint8_t math easier
 

@@ -4,11 +4,14 @@
 #include "Arduino.h"
 #include "PS2Enums.h"
 
-#define EP_MAXPKTSIZE 29
-
 #define REPORT_MODE 0
 #define CONFIG_MODE 1
-#define PS2_REPORT_SIZE 21
+#define DIGITAL_MODE 0
+#define ANALOGUE_MODE 1
+
+#define PS2_COMMAND_SIZE 21
+#define PS2_DIGITAL_REPORT_SIZE 9
+#define PS2_ANALOGUE_REPORT_SIZE 21
 #define PS2_CONFIG_SIZE 9
 
 class PS2
@@ -29,6 +32,7 @@ class PS2
 
     byte getRumbleLeft();
     byte getRumbleRight();
+    void toggleContMode();
 
   private:
 
@@ -44,12 +48,11 @@ class PS2
     uint8_t bi = 0;
     uint8_t tick = 0;
     uint8_t maxTicks = PS2_CONFIG_SIZE;
-    uint8_t mode = REPORT_MODE;
+    uint8_t commMode = REPORT_MODE;
+    uint8_t contMode = DIGITAL_MODE;
 
-    uint16_t digitalButtonState = 0xFFFF;
-    
-    uint8_t commandBuffer[EP_MAXPKTSIZE];
-    uint8_t reportBuffer[PS2_REPORT_SIZE] = { 0x01 };
+    uint8_t commandBuffer[PS2_COMMAND_SIZE];
+    uint8_t reportBuffer[PS2_ANALOGUE_REPORT_SIZE] = { 0x01 };
 
     uint8_t data41[PS2_CONFIG_SIZE];
     uint8_t data44[PS2_CONFIG_SIZE];
@@ -57,13 +60,17 @@ class PS2
     uint8_t data4D[PS2_CONFIG_SIZE];
     uint8_t data4F[PS2_CONFIG_SIZE];
 
+    uint8_t rumble[2];
+
     uint8_t data46, data4C;
 
     void tickFalling();
     void tickRising();
     void attentionFalling();
     void attentionRising();
-    void switchMode();
+    void setCommMode(uint8_t m);
+    void setContMode(uint8_t m);
+    void setMode();
 };
 
 #endif
