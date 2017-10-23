@@ -8,10 +8,12 @@
 #define CONFIG_MODE 1
 #define DIGITAL_MODE 0
 #define ANALOGUE_MODE 1
+#define ANALOGUE_EX_MODE 2
 
 #define PS2_COMMAND_SIZE 21
-#define PS2_DIGITAL_REPORT_SIZE 9
-#define PS2_ANALOGUE_REPORT_SIZE 21
+#define PS2_DIGITAL_REPORT_SIZE 5
+#define PS2_ANALOGUE_REPORT_SIZE 9
+#define PS2_ANALOGUE_EX_REPORT_SIZE 21
 #define PS2_CONFIG_SIZE 9
 
 class PS2
@@ -50,17 +52,19 @@ class PS2
     uint8_t maxTicks = PS2_CONFIG_SIZE;
     uint8_t commMode = REPORT_MODE;
     uint8_t contMode = DIGITAL_MODE;
+    bool contModeLocked = false;
 
     uint8_t commandBuffer[PS2_COMMAND_SIZE];
     uint8_t reportBuffer[PS2_ANALOGUE_REPORT_SIZE] = { 0x01 };
 
-    uint8_t data41[PS2_CONFIG_SIZE];
     uint8_t data44[PS2_CONFIG_SIZE];
     uint8_t data45[PS2_CONFIG_SIZE];
     uint8_t data4D[PS2_CONFIG_SIZE];
     uint8_t data4F[PS2_CONFIG_SIZE];
 
     uint8_t rumble[2];
+
+    
 
     uint8_t data46, data4C;
 
@@ -70,7 +74,7 @@ class PS2
     void attentionRising();
     void setCommMode(uint8_t m);
     void setContMode(uint8_t m);
-    void setMode();
+    void setMaxTicks();
 };
 
 #endif

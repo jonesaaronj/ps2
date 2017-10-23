@@ -36,30 +36,55 @@ void PS2::tickFalling() {
   //which bit are we on
   bi = tick % 8;
 
+  //digitalWrite(ackPin, LOW);
+
   switch (by) {
-    case 1:
+    case 0:
       // first byte is always 0xFF
       digitalWrite(dataPin, ((0xFF & (1 << bi)) >> bi));
       break;
-    case 2:
+    case 1:
       // second byte
       // first nibble is 0x4 for digital, 0x7 for analog, 0xF for config
       // second nibble is for the length of the report
-      commMode == CONFIG_MODE ?
-      digitalWrite(dataPin, ((0xF3 & (1 << bi)) >> bi)):
-      contMode ?
-      digitalWrite(dataPin, ((0x79 & (1 << bi)) >> bi)):
-      digitalWrite(dataPin, ((0x41 & (1 << bi)) >> bi));
-      break;
-    case 3:
+      switch (commMode) {
+        case CONFIG_MODE:
+          digitalWrite(dataPin, ((0xF3 & (1 << bi)) >> bi));
+          break;
+        case REPORT_MODE:
+          switch (contMode) {
+            case DIGITAL_MODE:
+              digitalWrite(dataPin, ((0x41 & (1 << bi)) >> bi));
+              break;
+            case ANALOGUE_MODE:
+              digitalWrite(dataPin, ((0x73 & (1 << bi)) >> bi));
+              break;
+            case ANALOGUE_EX_MODE:
+              digitalWrite(dataPin, ((0x79 & (1 << bi)) >> bi));
+              break;
+          }
+          break;
+      }
+    case 2:
+      // third byte is always 0x5A
       digitalWrite(dataPin, ((0x5A & (1 << bi)) >> bi));
       break;
     default:
       // check header to see what we are doing 
       switch (commandBuffer[1]) {
-        
+       
         case 0x41:
-          digitalWrite(dataPin, ((pgm_read_byte(&data41[(uint8_t)by]) & (1 << bi)) >> bi));
+          switch (contMode) {
+            case DIGITAL_MODE:
+              digitalWrite(dataPin, ((pgm_read_byte(&data41_digital[(uint8_t)by]) & (1 << bi)) >> bi));
+              break;
+            case ANALOGUE_MODE:
+              digitalWrite(dataPin, ((pgm_read_byte(&data41_analogue[(uint8_t)by]) & (1 << bi)) >> bi));
+              break;
+            case ANALOGUE_EX_MODE:
+              digitalWrite(dataPin, ((pgm_read_byte(&data41_analogue_ex[(uint8_t)by]) & (1 << bi)) >> bi));
+              break;
+          }
           break;
         
         // Main polling command
@@ -73,7 +98,8 @@ void PS2::tickFalling() {
           break;
   
         case 0x44:
-          digitalWrite(dataPin, ((data44[by] & (1 << bi)) >> bi));
+          // for this mode data is always 0
+          digitalWrite(dataPin, LOW);
           break;
           
         case 0x45:
@@ -111,8 +137,9 @@ void PS2::tickFalling() {
           break;
           
         case 0x4F:
-          digitalWrite(dataPin, ((data4F[by] & (1 << bi)) >> bi));
+          digitalWrite(dataPin, ((pgm_read_byte(&data4F[(uint8_t)by]) & (1 << bi)) >> bi));
           break;
+          
       break;
     }
   }
@@ -139,7 +166,7 @@ void PS2::tickRising() {
 
   commandBuffer[by] |= (digitalRead(commandPin) << bi);
 
-  if (by == 5) {
+  if (by == 5 && bi == 0) {
     switch (commandBuffer[1]) {
       case 0x43:
         // set config mode
@@ -174,31 +201,43 @@ void PS2::handleAttention() {
 void PS2::attentionFalling() {
   tick = 0;
 
-  // reset our command arrays
+  // pull data from command buffer
+  switch (commandBuffer[1]) {
+    case 0x42:
+      // pull rumble data
+      rumble[0] = commandBuffer[4];
+      rumble[1] = commandBuffer[5];
+      break;
+
+    case 0x44:
+      setContMode(commandBuffer[3]);
+      contModeLocked = (commandBuffer[4] == 0x03);
+      break;
+  }
+    
+  // reset our commandBuffer
   memset(commandBuffer, 0x00, sizeof commandBuffer);
 }
 
 void PS2::attentionRising() {
-
+  
 }
 
 void PS2::setCommMode(uint8_t m) {
   commMode = m;
-  setMode();
+  setMaxTicks();
 }
 
 void PS2::setContMode(uint8_t m) {
   contMode = m;
-  setMode();
+  setMaxTicks();
 }
 
-void PS2::setMode() {
+void PS2::setMaxTicks() {
   // set maxTicks for the mode
-  commMode == CONFIG_MODE ?
-  maxTicks = PS2_CONFIG_SIZE:
-  contMode == DIGITAL_MODE ?
-  maxTicks = PS2_DIGITAL_REPORT_SIZE:
-  maxTicks = PS2_ANALOGUE_REPORT_SIZE;
+  commMode == CONFIG_MODE ? maxTicks = PS2_CONFIG_SIZE:
+    contMode == DIGITAL_MODE ? maxTicks = PS2_DIGITAL_REPORT_SIZE:
+      maxTicks = PS2_ANALOGUE_REPORT_SIZE;
 }
 
 void PS2::setButton(ButtonEnum button, bool b) {
@@ -221,6 +260,8 @@ void PS2::setAnalogueButton(ButtonEnum button, uint8_t b) {
 }
 
 void PS2::toggleContMode() {
-  contMode = !contMode;
+  if (!contModeLocked) {
+    contMode = contMode++ % 3;
+  }
 }
 
