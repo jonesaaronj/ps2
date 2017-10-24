@@ -7,14 +7,15 @@
 #define REPORT_MODE 0
 #define CONFIG_MODE 1
 #define DIGITAL_MODE 0
-#define ANALOGUE_MODE 1
-#define ANALOGUE_EX_MODE 2
+#define ANALOG_MODE 1
 
+#define PS2_CONFIG_SIZE 9
 #define PS2_COMMAND_SIZE 21
 #define PS2_DIGITAL_REPORT_SIZE 5
-#define PS2_ANALOGUE_REPORT_SIZE 9
-#define PS2_ANALOGUE_EX_REPORT_SIZE 21
-#define PS2_CONFIG_SIZE 9
+#define PS2_ANALOG_REPORT_SIZE 21
+
+#define PS2_SMALL_MOTOR 0
+#define PS2_LARGE_MOTOR 1
 
 class PS2
 {
@@ -32,10 +33,11 @@ class PS2
     void setAnalogueHat(AnalogHatEnum hat, uint8_t b);
     void setAnalogueButton(ButtonEnum button, uint8_t b);
 
-    byte getRumbleLeft();
-    byte getRumbleRight();
     void toggleContMode();
-
+    
+    uint8_t getSmallMotor();
+    uint8_t getLargeMotor();
+    
   private:
 
     uint8_t clockPin = 0;
@@ -54,17 +56,22 @@ class PS2
     uint8_t contMode = DIGITAL_MODE;
     bool contModeLocked = false;
 
+    uint32_t responseMask = 0;
+
+    // hold the data we are reading from the ps2
     uint8_t commandBuffer[PS2_COMMAND_SIZE];
-    uint8_t reportBuffer[PS2_ANALOGUE_REPORT_SIZE] = { 0x01 };
-
-    uint8_t data44[PS2_CONFIG_SIZE];
-    uint8_t data45[PS2_CONFIG_SIZE];
-    uint8_t data4D[PS2_CONFIG_SIZE];
-    uint8_t data4F[PS2_CONFIG_SIZE];
-
-    uint8_t rumble[2];
-
+    // hold the values of all analogue and digital buttons
+    // a button press reports as low
+    uint8_t reportBuffer[PS2_ANALOG_REPORT_SIZE] = { 0x01 };
+    // holt the report config for the controller
+    // report config starts out only reporting digial buttons
+    uint8_t reportConfig[PS2_CONFIG_SIZE] = {0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x5A};
     
+    uint8_t motor0;
+    uint8_t motor1;
+
+    uint8_t smallMotor;
+    uint8_t largeMotor;
 
     uint8_t data46, data4C;
 

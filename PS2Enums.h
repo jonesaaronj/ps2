@@ -6,6 +6,7 @@
 #define PS2_HEADER_SIZE 3
 #define PS2_CONFIG_SIZE 9
 
+// the ordering should match the PS3 library
 const uint32_t PS2_BUTTONS[] PROGMEM = {
         0x0010, // UP
         0x0020, // RIGHT
@@ -30,6 +31,8 @@ const uint32_t PS2_BUTTONS[] PROGMEM = {
         //0x010000, // PS
 };
 
+// the byte location of the analog button
+// the ordering should match the PS3 library
 const uint8_t PS2_ANALOG_BUTTONS[] PROGMEM = {
         11, // UP_ANALOG
          9, // RIGHT_ANALOG
@@ -51,6 +54,8 @@ const uint8_t PS2_ANALOG_BUTTONS[] PROGMEM = {
         0, 0, // Skip PS and MOVE
 };
 
+// the byte location of the analoge hat
+// the ordering should match the PS3 library
 const uint8_t PS2_ANALOG_HATS[] PROGMEM = {
         7, // LeftHatX
         8, // LeftHatY
@@ -60,17 +65,6 @@ const uint8_t PS2_ANALOG_HATS[] PROGMEM = {
 
 // these arrays are oversized
 // to make the const uint8_t math easier
-
-// 0x41: Find out what buttons are included in poll responses.
-const uint8_t data41_digital[PS2_CONFIG_SIZE] PROGMEM = {
-    0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x5A
-};
-const uint8_t data41_analogue[PS2_CONFIG_SIZE] PROGMEM = {
-    0x00, 0x00, 0x00, 0xFC, 0x00, 0x00, 0x00, 0x00, 0x5A
-};
-const uint8_t data41_analogue_ex[PS2_CONFIG_SIZE] PROGMEM = {
-    0x00, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x5A
-};
 
 // 0x45: Get more status info
 const uint8_t data45[PS2_CONFIG_SIZE] PROGMEM = {
@@ -98,6 +92,10 @@ const uint8_t data4C_a[PS2_CONFIG_SIZE] PROGMEM = {
 };
 const uint8_t data4C_b[PS2_CONFIG_SIZE] PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00
+};
+
+const uint8_t data4D[PS2_CONFIG_SIZE] PROGMEM = {
+    0x00, 0x00, 0x00, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
 const uint8_t data4F[PS2_CONFIG_SIZE] PROGMEM = {

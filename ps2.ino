@@ -83,6 +83,9 @@ void loop() {
     if (PS3.getButtonClick(PS)) {
       PS2.toggleContMode();
     }
+
+    PS2.getSmallMotor();
+    PS2.getLargeMotor();
   }
 }
 
